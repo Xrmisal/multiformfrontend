@@ -2,7 +2,9 @@
 import { getCurrentScope, ref } from 'vue';
 import axios from 'axios';
 
-const address = ref('')
+const houseNumber = ref('')
+const street = ref('')
+const city = ref('')
 const postcode = ref('')
 const error = ref(null)
 const loading = ref(false)
@@ -10,6 +12,7 @@ const validating = ref(false)
 
 const errors = ref({ address: '', postcode: '' })
 const emit = defineEmits(['complete'])
+
 const customerId = localStorage.getItem('customerId')
 
 const ukPostcodePattern = /^([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z]?))))\s?[0-9][A-Za-z]{2})$/
@@ -18,8 +21,18 @@ async function validateForm() {
     errors.value = { address: '', postcode: '' }
     let isValid = true
 
-    if (!address.value.trim()) {
-        errors.value.address = 'Address is required.'
+    if(!houseNumber.value.trim()) {
+        errors.value.houseNumber = 'House number is required'
+        isValid = false
+    }
+
+    if (!street.value.trim()) {
+        errors.value.street = 'Street name is required.'
+        isValid = false
+    }
+
+    if (!city.value.trim()) {
+        errors.value.city = 'City is required.'
         isValid = false
     }
 
@@ -55,11 +68,13 @@ async function submit () {
     error.value = null
     if (!(await validateForm())) return
 
+    const address = `${houseNumber.value} ${street.value}, ${city.value}`
+
     loading.value = true
 
     try {
         const response = await axios.put(`/api/update/${customerId}`, {
-            address: address.value,
+            address,
             postcode: postcode.value
         })
 
@@ -82,9 +97,21 @@ async function submit () {
         <h2>Step 1: Address</h2>
 
         <div class="form-group">
-            <label>Address</label>
-            <input v-model="address" placeholder="Enter your address" />
-            <span v-if="errors.address" class="error">{{ errors.address }}</span>
+        <label>House/Flat Number</label>
+        <input v-model="houseNumber" />
+        <span v-if="errors.houseNumber" class="error">{{ errors.houseNumber }}</span>
+        </div>
+
+        <div class="form-group">
+        <label>Street Name</label>
+        <input v-model="street" />
+        <span v-if="errors.street" class="error">{{ errors.street }}</span>
+        </div>
+
+        <div class="form-group">
+        <label>City</label>
+        <input v-model="city" />
+        <span v-if="errors.city" class="error">{{ errors.city }}</span>
         </div>
 
         <div class="form-group">
