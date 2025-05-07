@@ -15,8 +15,9 @@ const resumingMessage = ref(false)
 
 onMounted(async () => {
   const storedId = localStorage.getItem('customerId');
+  const token = localStorage.getItem('access_token');
 
-  if (!storedId) {
+  if (!storedId || !token) {
     currentStep.value = 0;
     isLoading.value = false;
     return;
@@ -26,7 +27,11 @@ onMounted(async () => {
 
   if (customerId.value) {
     try {
-      const response = await axios.get(`http://localhost:8000/api/status/${customerId.value}`)
+      const response = await axios.get(`http://localhost:8000/api/status/${customerId.value}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
       currentStep.value = response.data.step
       resumingMessage.value = true
 
@@ -34,10 +39,14 @@ onMounted(async () => {
         resumingMessage.value = false
       }, 5000)
     } catch (err) {
+      if (err.response && err.response.status === 422) {
+        errorMessages.value = err.response.data.message
+      } else {
       console.error('Restoration failed:', err)
       localStorage.removeItem('customerId')
       customerId.value = null
       currentStep.value = 0
+      }
     }
     isLoading.value = false
   }
@@ -60,6 +69,7 @@ onMounted(async () => {
   <div>
     <h1>Multi-Step Form</h1>
     <p v-if="resumingMessage" class="resuming-banner">Resuming your application...</p>
+    <p v-if="error" class="error-message">{{ error }}</p>
 
     <Step0 v-if="!isLoading && currentStep === 0" @complete="handleStepComplete" />
     <Step1 v-if="!isLoading && currentStep === 1" @complete="handleStepComplete"/>
@@ -76,5 +86,10 @@ onMounted(async () => {
   margin-bottom: 1rem;
   font-weight: bold;
   border-radius: 4px;
+}
+
+.error-message {
+  color:red;
+  margin-bottom: 1rem;
 }
 </style>

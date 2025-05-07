@@ -69,17 +69,27 @@ async function submit () {
     if (!(await validateForm())) return
 
     const address = `${houseNumber.value} ${street.value}, ${city.value}`
-
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+        error.value = 'Authorization token is missing';
+        return;
+    };
     loading.value = true
-    const headers = {
-    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+
+    const payload = {
+    address,
+    postcode: postcode.value
+    };
+
+    const config = {
+    headers: {
+        Authorization: `Bearer ${token}`
+    }
     };
 
     try {
-        const response = await axios.put(`/api/update/${customerId}`, payload, {headers}, {
-            address,
-            postcode: postcode.value
-        })
+
+        const response = await axios.put(`http://localhost:8000/api/update/${customerId}`, payload, config);
 
         emit('complete', {
             id: customerId,
