@@ -71,9 +71,12 @@ async function submit () {
     const address = `${houseNumber.value} ${street.value}, ${city.value}`
 
     loading.value = true
+    const headers = {
+    'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    };
 
     try {
-        const response = await axios.put(`/api/update/${customerId}`, {
+        const response = await axios.put(`/api/update/${customerId}`, payload, {headers}, {
             address,
             postcode: postcode.value
         })

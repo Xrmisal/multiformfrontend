@@ -58,6 +58,7 @@ async function submit() {
         const step = response.data.step
 
         localStorage.setItem('customerId', customerId)
+        localStorage.setItem('access_token', response.data.access_token);
 
         emit('complete', { id: customerId, step })
     } catch (err) {
