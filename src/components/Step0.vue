@@ -47,7 +47,6 @@ async function submit() {
     loading.value = true
 
     try {
-        console.log("Trying")
         const response = await axios.post('/api/start', {
             name: name.value,
             email: email.value,
@@ -62,7 +61,6 @@ async function submit() {
 
         emit('complete', { id: customerId, step })
     } catch (err) {
-        console.log("Failing")
         error.value = err.response?.data?.error || 'Something went wrong'
     } finally {
         loading.value = false

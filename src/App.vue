@@ -5,6 +5,8 @@ import axios from 'axios'
 import Step0 from './components/Step0.vue'
 import Step1 from './components/Step1.vue'
 import Step2 from './components/Step2.vue'
+import Step3 from './components/Step3.vue'
+import Success from './components/Success.vue'
 
 const currentStep = ref(0)
 const customerId = ref(localStorage.getItem('customerId') || null)
@@ -74,6 +76,10 @@ onMounted(async () => {
     <Step0 v-if="!isLoading && currentStep === 0" @complete="handleStepComplete" />
     <Step1 v-if="!isLoading && currentStep === 1" @complete="handleStepComplete"/>
     <Step2 v-if="!isLoading && currentStep === 2" @complete="handleStepComplete" />
+    <Step3 v-if="!isLoading && currentStep === 3" @complete="handleStepComplete" />
+    <Success v-if="!isLoading && currentStep === 4" @complete="handleStepComplete" />
+    
+    
   </div>
 </template>
 
