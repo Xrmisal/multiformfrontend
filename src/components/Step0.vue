@@ -8,7 +8,7 @@ const name = ref('')
 const email = ref('')
 const phone = ref('')
 const loading = ref(false)
-const errors = ref({name: '',email: '',phone: ''})
+const errors = ref({name: '',email: '',phone: '',server:''})
 
 function validateForm() {
     let isValid = true;
@@ -41,7 +41,6 @@ function validateForm() {
 }
 
 async function submit() {
-    errors.value = null
     if (!validateForm()) return;
 
     loading.value = true
@@ -61,7 +60,7 @@ async function submit() {
 
         emit('complete', { id: customerId, step })
     } catch (err) {
-        error.value = err.response?.data?.error || 'Something went wrong'
+        errors.value.server = err.response?.data?.error || 'Something went wrong'
     } finally {
         loading.value = false
     }
@@ -89,6 +88,7 @@ async function submit() {
         <label>Phone</label>
         <input v-model="phone" type="tel" placeholder="Enter your phone number" />
         <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
+        <span v-if="errors.server" class="error">{{ errors.server }}</span>
         </div>
 
         <button @click="submit" :disabled="loading">
