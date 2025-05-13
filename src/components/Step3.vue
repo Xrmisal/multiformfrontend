@@ -2,20 +2,18 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
+axios.defaults.withCredentials = true;
+
 let customer
 const loading = ref(true)
 const error = ref(null)
 const emit = defineEmits(['complete'])
 
-const customerId = localStorage.getItem('customerId')
-const token = localStorage.getItem('access_token')
 
 onMounted(async () => {
     try {
-        const response = await axios.get(`http://localhost:8000/api/customer/${customerId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+        const response = await axios.get(`http://localhost:8000/api/customer`, {
+            withCredentials: true
         })
         customer = response.data;
 
@@ -28,14 +26,10 @@ onMounted(async () => {
 
 async function restartForm() {
     try {
-        await axios.delete(`http://localhost:8000/api/delete/${customerId}`, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+        await axios.delete(`http://localhost:8000/api/delete`, {
+            withCredentials:true
         })
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('customerId')
-        emit('complete', { step: 0, message: 'Form restarted'})
+        emit('complete', { step: 0, })
     } catch(err) {
         error.value = err.response?.data?.error || 'Failed to restart form'
     }
@@ -43,17 +37,15 @@ async function restartForm() {
 
 async function submitFinal() {
     try {
-        await axios.put(`http://localhost:8000/api/update/${customerId}`, {
+        await axios.put(`http://localhost:8000/api/update`, {
             step: 3
         }, {
-            headers: {
-                Authorization: `Bearer ${token}`
-            }
+            withCredentials: true
         })
-
-        localStorage.removeItem('access_token')
-        localStorage.removeItem('customerId')
-        emit('complete', { step: 4, message: 'Form submitted'})
+        console.log("Axios went through")
+        emit('complete', {
+            step: 4,
+        })
     } catch (err) {
         error.value = err.response?.data?.error || 'Failed to submit form'
     }
@@ -61,40 +53,40 @@ async function submitFinal() {
 </script>
 
 <template>
-<div>
-    <h2>Step 3: Review Your Information</h2>
+    <div class="min-h-screen bg-gray-900 text-white flex items-center justify-center px-4">
+    <div class="w-full max-w-xl bg-gray-800 rounded-2xl shadow-lg p-8 space-y-6">
+        <h2 class="text-2xl font-semibold text-center text-teal-400">4 / 5</h2>
+        <p class="text-center text-gray-400">Please review your information before submitting</p>
 
-    <div v-if="loading">Loading...</div>
-    <div v-else-if="error" class="text-red">{{ error }}</div>
-    <div v-else-if="customer">
-    <ul>
-        <li><strong>Name:</strong> {{ customer.name }}</li>
-        <li><strong>Email:</strong> {{ customer.email }}</li>
-        <li><strong>Phone:</strong> {{ customer.phone }}</li>
-        <li><strong>Address:</strong> {{ customer.address }}</li>
-        <li><strong>Postcode:</strong> {{ customer.postcode }}</li>
-        <li><strong>Date of Birth:</strong> {{ customer.dob }}</li>
-        <li><strong>Monthly Income:</strong> £{{ customer.income }}</li>
-    </ul>
+        <ul class="space-y-4">
+        <li><strong class="text-teal-400">Name:</strong> {{ customer.name }}</li>
+        <li><strong class="text-teal-400">Email:</strong> {{ customer.email }}</li>
+        <li><strong class="text-teal-400">Phone:</strong> {{ customer.phone }}</li>
+        <li><strong class="text-teal-400">Address:</strong> {{ customer.address }}</li>
+        <li><strong class="text-teal-400">Postcode:</strong> {{ customer.postcode }}</li>
+        <li><strong class="text-teal-400">Date of Birth:</strong> {{ customer.dob }}</li>
+        <li><strong class="text-teal-400">Monthly Income:</strong> £{{ customer.income }}</li>
+        </ul>
 
-    <button @click="restartForm" style="margin-right: 1rem; background-color: crimson; color: white;">
-        Start Over
-    </button>
-    <button @click="submitFinal" style="background-color: green; color: white;">
-        Confirm & Submit
-    </button>
+        <p v-if="error" class="text-sm text-red-500 text-center">{{ error }}</p>
+
+        <div class="flex justify-between mt-6">
+        <button
+            @click="restartForm"
+            class="bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-md transition">
+            Start Over
+        </button>
+
+        <button
+            @click="submitFinal"
+            class="bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md transition">
+            Confirm & Submit
+        </button>
+        </div>
     </div>
-</div>
+    </div>
 </template>
 
 <style scoped>
-button {
-    padding: 0.6rem 1rem;
-    font-size: 1rem;
-    background-color: #35495e;
-    color: white;
-    border: none;
-    cursor: pointer;
-    margin-top: 1rem;
-}
+
 </style>

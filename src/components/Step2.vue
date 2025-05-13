@@ -2,13 +2,13 @@
 import { ref } from 'vue';
 import axios from 'axios';
 
+axios.defaults.withCredentials = true;
+
 const dob = ref('');
 const income = ref('');
 const error = ref(null);
 const loading = ref(false);
 
-const customerId = localStorage.getItem('customerId');
-const token = localStorage.getItem('access_token');
 const emit = defineEmits(['complete']);
 
 function validateForm() {
@@ -41,21 +41,17 @@ async function submit() {
 
     try {
         const response = await axios.put(
-            `http://localhost:8000/api/update/${customerId}`,
+            `http://localhost:8000/api/update`,
             {
                 dob: dob.value,
                 income: income.value
             },
             {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
+                withCredentials: true
             }
         );
 
         emit('complete', {
-            id: customerId,
             step: response.data.step
         });
 
@@ -69,39 +65,36 @@ async function submit() {
 </script>
 
 <template>
-    <div>
-    <h2>Step 2: Final Step</h2>
-    <div class="form-group">
-        <label for="dob">Date of Birth</label>
-        <input type="date" v-model="dob" />
+    <div class="min-h-screen bg-gray-900 text-white flex items-center justify-center px-4">
+    <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
+        <h2 class="text-2xl font-semibold text-center text-teal-400">3 / 5</h2>
+
+        <div class="space-y-4">
+        <div>
+            <label for="dob" class="block text-sm font-medium">Date of Birth</label>
+            <input v-model="dob" id="dob" type="date"
+            class="mt-1 w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+
+        <div>
+            <label for="income" class="block text-sm font-medium">Monthly Income (£)</label>
+            <input v-model="income" id="income" type="number" placeholder="Enter your income"
+            class="mt-1 w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+
+        <p v-if="error" class="text-sm text-red-500">{{ error }}</p>
+        </div>
+
+        <div>
+        <button @click="submit" :disabled="loading"
+            class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md transition disabled:opacity-50">
+            {{ loading ? 'Submitting...' : 'Next' }}
+        </button>
+        </div>
     </div>
-
-    <div class="form-group">
-        <label for="income">Monthly Income (£)</label>
-        <input type="number" v-model="income" />
-    </div>
-
-    <button @click="submit" :disabled="loading">
-        {{ loading ? 'Submitting...' : 'Next' }}
-    </button>
-
-    <p v-if="error" class="error">{{ error }}</p>
     </div>
 </template>
 
 <style scoped>
-    .form-group {
-    margin-bottom: 1rem;
-    }
-    input {
-    padding: 0.5rem;
-    font-size: 1rem;
-    }
-    button {
-    padding: 0.5rem 1rem;
-    }
-    .error {
-    color: red;
-    margin-top: 1rem;
-    }
+
 </style>

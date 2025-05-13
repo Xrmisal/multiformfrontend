@@ -2,6 +2,8 @@
 import { ref } from 'vue';
 import axios from 'axios'
 
+axios.defaults.withCredentials = true;
+
 const emit = defineEmits(['complete'])
 
 const name = ref('')
@@ -50,15 +52,11 @@ async function submit() {
             name: name.value,
             email: email.value,
             phone: phone.value
+        }, {
+            withCredentials: true
         })
 
-        const customerId = response.data.id
-        const step = response.data.step
-
-        localStorage.setItem('customerId', customerId)
-        localStorage.setItem('access_token', response.data.access_token);
-
-        emit('complete', { id: customerId, step })
+        emit('complete', {step: response.data.step})
     } catch (err) {
         errors.value.server = err.response?.data?.error || 'Something went wrong'
     } finally {
@@ -69,31 +67,41 @@ async function submit() {
 </script>
 
 <template>
-    <div>
-        <h2>Step 0: Start Form</h2>
+    <div class="min-h-screen bg-gray-900 text-white flex items-center justify-center px-4">
+    <div class="w-full max-w-md bg-gray-800 rounded-2xl shadow-lg p-6 space-y-6">
+        <h2 class="text-2xl font-semibold text-center text-teal-400">1 / 5</h2>
 
-        <div class="form-group">
-        <label>Name</label>
-        <input v-model="name" type="text" placeholder="Enter your name" />
-        <span v-if="errors.name" class="error">{{ errors.name }}</span>
+        <div class="space-y-4">
+        <div>
+            <label class="block text-sm font-medium">Name</label>
+            <input v-model="name" type="text" placeholder="Enter your name"
+            class="mt-1 w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-teal-500 outline-none">
+            <span v-if="errors.name" class="text-sm text-red-500">{{ errors.name }}</span>
         </div>
 
-        <div class="form-group">
-        <label>Email</label>
-        <input v-model="email" type="email" placeholder="Enter your email" />
-        <span v-if="errors.email" class="error">{{ errors.email }}</span>
+        <div>
+            <label class="block text-sm font-medium">Email</label>
+            <input v-model="email" type="email" placeholder="Enter your email"
+            class="mt-1 w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-teal-500 outline-none">
+            <span v-if="errors.email" class="text-sm text-red-500">{{ errors.email }}</span>
         </div>
 
-        <div class="form-group">
-        <label>Phone</label>
-        <input v-model="phone" type="tel" placeholder="Enter your phone number" />
-        <span v-if="errors.phone" class="error">{{ errors.phone }}</span>
-        <span v-if="errors.server" class="error">{{ errors.server }}</span>
+        <div>
+            <label class="block text-sm font-medium">Phone</label>
+            <input v-model="phone" type="tel" placeholder="Enter your phone number"
+            class="mt-1 w-full px-4 py-2 rounded-md bg-gray-700 text-white border border-gray-600 focus:ring-2 focus:ring-teal-500 outline-none">
+            <span v-if="errors.phone" class="text-sm text-red-500">{{ errors.phone }}</span>
+        </div>
         </div>
 
-        <button @click="submit" :disabled="loading">
-        {{ loading ? 'Submitting...' : 'Next' }}
+        <div>
+        <button @click="submit" :disabled="loading"
+            class="w-full bg-teal-500 hover:bg-teal-600 text-white font-semibold py-2 px-4 rounded-md transition disabled:opacity-50">
+            {{ loading ? 'Submitting...' : 'Next' }}
         </button>
+        <span v-if="errors.server" class="block mt-2 text-sm text-red-500">{{ errors.server }}</span>
+        </div>
+    </div>
     </div>
 </template>
 
