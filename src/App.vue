@@ -22,7 +22,7 @@ try {
   const response = await axios.get(`http://localhost:8000/api/status`, {
     withCredentials: true
   })
-
+  if (!response.data) throw(err)
   currentStep.value = response.data.step;
   resumingMessage.value = true;
   setTimeout(() => {
@@ -31,8 +31,6 @@ try {
 } catch (err) {
   if (err.response && err.response.status === 422) {
     errorMessages.value = err.response.data.message
-  } else {
-    console.error('Restoration failed: ', err)
   }
 
   currentStep.value = 0;
@@ -70,7 +68,7 @@ try {
         <Step1 v-else-if="currentStep === 1" @complete="handleStepComplete" />
         <Step2 v-else-if="currentStep === 2" @complete="handleStepComplete" />
         <Step3 v-else-if="currentStep === 3" @complete="handleStepComplete" />
-        <Success v-else-if="currentStep === 4" />
+        <Success v-else-if="currentStep === 4"/>
       </transition>
 
       <p
@@ -79,7 +77,6 @@ try {
       >
         Resuming your application...
       </p>
-      <p v-if="error" class="mt-4 text-red-400 text-center">{{ error }}</p>
     </div>
   </div>
 </template>
