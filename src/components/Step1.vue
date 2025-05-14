@@ -1,5 +1,5 @@
 <script setup>
-import { getCurrentScope, ref } from 'vue';
+import { ref } from 'vue';
 import axios from 'axios';
 
 axios.defaults.withCredentials = true;
